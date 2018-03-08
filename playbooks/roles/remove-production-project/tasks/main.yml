@@ -1,5 +1,5 @@
 - name: Authenticate to OpenShift Cluster {{ openshift_prod_url }}
-  command: "oc login {{ openshift_prod_url }} --token={{ openshift_prod_token }}"
+  command: "oc login {{ openshift_prod_url }} --token={{ openshift_prod_token }} --insecure-skip-tls-verify"
 
 - name: Remove Production Project
   command: "oc delete project {{ openshift_app_name }}-prod"
