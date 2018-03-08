@@ -2,4 +2,4 @@
   command: "oc login {{ openshift_test_url }} --token={{ openshift_test_token }}"
 
 - name: Remove Test Project
-  command: "oc delete project {{ openshift_test_project_name }}" 
+  command: "oc delete project {{ openshift_app_name }}-test" 

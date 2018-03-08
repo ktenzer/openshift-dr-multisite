@@ -5,7 +5,7 @@
     mode: 0755
 
 - name: Authenticate to OpenShift Cluster {{ openshift_test_url }}
-  command: "oc login {{ openshift_test_url }} --token={{ openshift_test_token }}"
+  command: "oc login {{ openshift_test_url }} --token={{ openshift_test_token }} --insecure-skip-tls-verify"
 
 - name: Create Production Project
   command: "oc create -f /tmp/test-project.yaml"

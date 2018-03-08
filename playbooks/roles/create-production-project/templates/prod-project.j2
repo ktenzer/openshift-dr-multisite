@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Namespace
 metadata:
   annotations:
-    openshift.io/description: "{{ openshift_prod_project_description }}"
-    openshift.io/display-name: " {{ openshift_prod_project_display_name }}"
+    openshift.io/description: "{{ openshift_app_description }} - Production Environment"
+    openshift.io/display-name: " {{ openshift_app_display_name }} - Prod"
     openshift.io/requester: admin
-  name: {{ openshift_prod_project_name }}
+  name: {{ openshift_app_name }}-prod
 spec:
   finalizers:
   - openshift.io/origin

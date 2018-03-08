@@ -4,14 +4,6 @@
   connection: local
   become: no
   gather_facts: no
-  vars:
-    openshift_prod_project_description: prod123
-    openshift_prod_project_display_name: prod123
-    openshift_prod_project_name: prod123
-    openshift_test_project_description: test123
-    openshift_test_project_display_name: test123
-    openshift_test_project_name: test123
-    
 
   tasks:
   - import_role:
