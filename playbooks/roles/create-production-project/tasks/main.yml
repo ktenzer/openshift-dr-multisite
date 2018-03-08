@@ -1,0 +1,11 @@
+- name: Setup project template
+  template:
+    src: templates/prod-project.j2
+    dest: /tmp/prod-project.yaml
+    mode: 0755
+
+- name: Authenticate to OpenShift Cluster {{ openshift_prod_url }}
+  command: "oc login {{ openshift_prod_url }} --token={{ openshift_prod_token }}"
+
+- name: Create Production Project
+  command: "oc create -f /tmp/prod-project.yaml"

@@ -1,0 +1,5 @@
+- name: Authenticate to OpenShift Cluster {{ openshift_test_url }}
+  command: "oc login {{ openshift_test_url }} --token={{ openshift_test_token }}"
+
+- name: Remove Test Project
+  command: "oc delete project {{ openshift_test_project_name }}" 
