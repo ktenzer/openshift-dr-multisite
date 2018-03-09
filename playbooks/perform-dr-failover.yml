@@ -13,11 +13,11 @@
         ansible_user: cloud-user
         ansible_ssh_host: 192.168.2.13
 
-- name: Perform DR Failover
+- name: Inventory OpenShift Nodes
   become: no
   hosts: bastion
   gather_facts: no
 
   tasks:
-  - import_role:
-      name: perform-dr-failover
+    - name: Perform DR Test
+      command: "/home/cloud-user/perform-dr-failover.sh hackathon mariadb https://openshift.144.76.134.230.xip.io:8443 lKffkOuOQCXsQrPGTaX5Z_jJhIdV15ip5laM4IJ6qGM https://openshift.144.76.134.229.xip.io:8443 7Pfd17d4NIBghixsPTdQ3S-FPQaemnQ1W2OMl3szfFs"
