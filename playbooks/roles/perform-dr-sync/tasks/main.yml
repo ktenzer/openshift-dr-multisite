@@ -1,0 +1,11 @@
+- name: Authenticate to OpenShift Cluster {{ openshift_prod_url }}
+  command: "oc login {{ openshift_prod_url }} --token={{ openshift_prod_token }} --insecure-skip-tls-verify --insecure-skip-tls-verify"
+
+- name: Export Project
+  command: "/home/cloud-user/ExportImport/openshift-ansible-contrib/reference-architecture/day2ops/scripts/project_export.sh {{ openshift_app_name }}-prod"
+
+- name: Authenticate to OpenShift Cluster {{ openshift_test_url }}
+  command: "oc login {{ openshift_test_url }} --token={{ openshift_test_token }} --insecure-skip-tls-verify"
+
+- name: Import Project for DR
+  command: "/home/cloud-user/ExportImport/openshift-ansible-contrib/reference-architecture/day2ops/scripts/project_import.sh {{ openshift_app_name }}-prod"
