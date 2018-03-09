@@ -1,4 +1,18 @@
 ---
+- name: Build dynamic inventory
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+
+  tasks:
+    - name: Add bastion to inventory
+      add_host:
+        name: bastion-west
+        groups: bastion,all
+        ansible_user: cloud-user
+        ansible_ssh_host: 192.168.2.13
+
 - name: Inventory OpenShift Nodes
   become: no
   hosts: bastion
