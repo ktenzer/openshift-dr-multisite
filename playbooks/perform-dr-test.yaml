@@ -1,0 +1,10 @@
+---
+- name: Inventory OpenShift Nodes
+  hosts: bastion
+  become: no
+  gather_facts: no
+
+  tasks:
+    - name: Test message
+      debug:
+        msg: "this is a test from bastion"
