@@ -4,32 +4,32 @@
 - name: Get PV
   command: PV=`oc get pv |grep {{ openshift_app_name }}-prod/{{ openshift_app_dc }} |awk {'print $1'}`;oc get pv $PV -o yaml |sed '/creationTimestamp/d' |sed '/resourceVersion/d' |sed '/selfLink/d' |sed '/uid:/d' |sed -e '19,23d' >/tmp/pv
 
-- name: Get PVC
-  command: oc get pvc {{ openshift_app_dc }} -n {{ openshift_app_name }}-prod -o yaml|sed '/creationTimestamp/d' |sed -e '12,20d' >/tmp/pvc
+#- name: Get PVC
+#  command: oc get pvc {{ openshift_app_dc }} -n {{ openshift_app_name }}-prod -o yaml|sed '/creationTimestamp/d' |sed -e '12,20d' >/tmp/pvc
 
-- name: Scale application down
-  command: "oc scale dc/{{ openshift_app_dc }} --replicas=0 -n {{ openshift_app_name }}-prod"
+#- name: Scale application down
+#  command: "oc scale dc/{{ openshift_app_dc }} --replicas=0 -n {{ openshift_app_name }}-prod"
 
-- name: Authenticate to OpenStack Europe West Region
-  command: source /root/keystonerc_prod
+#- name: Authenticate to OpenStack Europe West Region
+#  command: source /root/keystonerc_prod
 
-- name: Get OpenStack Cinder Volume Id
-  command: "PVC=`oc get pv |grep {{ openshift_app_name }}-prod/{{ openshift_app_dc }} |awk {'print $1'}`;openstack volume list |grep $PVC |awk {'print $2'} >/tmp/volumeid"
+#- name: Get OpenStack Cinder Volume Id
+#  command: "PVC=`oc get pv |grep {{ openshift_app_name }}-prod/{{ openshift_app_dc }} |awk {'print $1'}`;openstack volume list |grep $PVC |awk {'print $2'} >/tmp/volumeid"
 
-- name: Create OpenStack Cinder Volume Transfer Request
-  command: "VOLUMEID=`cat /tmp/volumeid`;openstack volume transfer request create $VOLUMEID >/tmp/volume-transter-request"
+#- name: Create OpenStack Cinder Volume Transfer Request
+#  command: "VOLUMEID=`cat /tmp/volumeid`;openstack volume transfer request create $VOLUMEID >/tmp/volume-transter-request"
 
-- name: Authenticate to OpenStack Europe East Region
-  command: source /root/keystonerc_dr
+#- name: Authenticate to OpenStack Europe East Region
+#  command: source /root/keystonerc_dr
 
-- name: Accept OpenStack Cinder Volume Transfer Request
-  command: "AUTH_KEY=`cat /tmp/volume-transfer |grep auth_key |awk {'print $4'}`;ID=`cat /tmp/volume-transfer |grep ' id' |awk {'print $4'}`;openstack volume transfer request $ID accept $AUTH_KEY"
+#- name: Accept OpenStack Cinder Volume Transfer Request
+#  command: "AUTH_KEY=`cat /tmp/volume-transfer |grep auth_key |awk {'print $4'}`;ID=`cat /tmp/volume-transfer |grep ' id' |awk {'print $4'}`;openstack volume transfer request $ID accept $AUTH_KEY"
 
-- name: Create Secrets in DR project
-  command: "oc create -f /tmp/secret.yaml -n {{ openshift_app_name }}"
+#- name: Create Secrets in DR project
+#  command: "oc create -f /tmp/secret.yaml -n {{ openshift_app_name }}"
 
-- name: Create DR PV
-  command: oc create -f /tmp/pv
+#- name: Create DR PV
+#  command: oc create -f /tmp/pv
 
-- name: Create DR PVC
-  command: oc create -f /tmp/pvc
+#- name: Create DR PVC
+#  command: oc create -f /tmp/pvc

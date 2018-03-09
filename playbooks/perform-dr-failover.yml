@@ -1,0 +1,23 @@
+---
+- name: Build dynamic inventory
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+
+  tasks:
+    - name: Add bastion to inventory
+      add_host:
+        name: bastion-west
+        groups: bastion,all
+        ansible_user: cloud-user
+        ansible_ssh_host: 192.168.2.13
+
+- name: Perform DR Failover
+  become: no
+  hosts: bastion
+  gather_facts: no
+
+  tasks:
+  - import_role:
+      name: perform-dr-failover
