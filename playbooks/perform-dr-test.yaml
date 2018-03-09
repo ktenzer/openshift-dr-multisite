@@ -1,6 +1,7 @@
 ---
 - name: Inventory OpenShift Nodes
   become: no
+  hosts: bastion
   gather_facts: no
 
   tasks:
