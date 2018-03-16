@@ -1,21 +1,24 @@
+[cloud-user@bastion ~]$ cat perform-dr-failover.sh
 #!/bin/bash
 
-usage() { 
-	echo "Usage:$0 project_name project_database_dc prod_url prod_token test_url test_token" 
-	exit 1
-} 
+usage() {
+        echo "Usage:$0 project_name project_database_dc prod_url prod_token test_url test_token"
+        exit 1
+}
 
 if ([ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ] || [ -z "$5" ] || [ -z "$6" ]); then
   usage
 fi
 
-# Parameters
+# Parameters Example
 #OPENSHIFT_APP_NAME=hackathon
 #OPENSHIFT_APP_DC=mariadb
 #OPENSHIFT_PROD_URL=https://openshift.144.76.134.230.xip.io:8443
 #OPENSHIFT_PROD_TOKEN=lKffkOuOQCXsQrPGTaX5Z_jJhIdV15ip5laM4IJ6qGM
 #OPENSHIFT_TEST_URL=https://openshift.144.76.134.229.xip.io:8443
 #OPENSHIFT_TEST_TOKEN=7Pfd17d4NIBghixsPTdQ3S-FPQaemnQ1W2OMl3szfFs
+
+# ./perform-dr-failover.sh hacjathon mariadb https://openshift.144.76.134.230.xip.io:8443 lKffkOuOQCXsQrPGTaX5Z_jJhIdV15ip5laM4IJ6qGM https://openshift.144.76.134.229.xip.io:8443 7Pfd17d4NIBghixsPTdQ3S-FPQaemnQ1W2OMl3szfFs
 
 OPENSHIFT_APP_NAME=$1
 OPENSHIFT_APP_DC=$2
@@ -31,7 +34,7 @@ oc get secret $OPENSHIFT_APP_DC -n $OPENSHIFT_APP_NAME-prod -o yaml --export=tru
 
 PV=`oc get pv |grep $OPENSHIFT_APP_NAME-prod/$OPENSHIFT_APP_DC |awk {'print $1'}`;oc get pv $PV -o yaml |sed '/creationTimestamp/d' |sed '/resourceVersion/d' |sed '/selfLink/d' |sed '/uid:/d' |sed -e '19,23d' >/tmp/pv
 
-oc get pvc $OPENSHIFT_APP_DC -n $OPENSHIFT_APP_NAME-prod -o yaml|sed '/creationTimestamp/d' |sed -e '12,20d' >/tmp/pvc
+oc get pvc $OPENSHIFT_APP_DC -n $OPENSHIFT_APP_NAME-prod -o yaml|sed -e 'r/namespace: $OPENSHIFT_APP_NAME-prod/namespace: $OPENSHIFT_APP_NAME-dr/g' |sed '/creationTimestamp/d' |sed -e '12,20d' >/tmp/pvc
 
 oc get project $OPENSHIFT_APP_NAME-prod -o yaml >/tmp/project.yaml
 
@@ -55,7 +58,7 @@ sleep 3
 
 source /home/cloud-user/keystonerc_dr
 
-sleep 3
+sleep 20
 
 echo "INFO: Accepting transfer move request"
 AUTH_KEY=`cat /tmp/volume-transfer-request |grep auth_key |awk {'print $4'}`;ID=`cat /tmp/volume-transfer-request |grep ' id' |awk {'print $4'}`;openstack volume transfer request accept $ID $AUTH_KEY
@@ -67,25 +70,25 @@ oc login $OPENSHIFT_TEST_URL --token=$OPENSHIFT_TEST_TOKEN --insecure-skip-tls-v
 sleep 1
 
 echo "INFO: Creating DR Project"
-oc new-project $OPENSHIFT_APP_NAME-prod
+oc new-project $OPENSHIFT_APP_NAME-dr
 
 sleep 3
 
 echo "INFO: Setting SELinux Labels on DR Project"
-SCC_MCS=`cat /tmp/project.yaml |grep openshift.io/sa.scc.mcs: |awk {'print $2'}`;oc patch namespace $OPENSHIFT_APP_NAME-prod -p "{\"metadata\":{\"annotations\":{\"openshift.io/sa.scc.mcs\":\"$SCC_MCS\"}}}"
+SCC_MCS=`cat /tmp/project.yaml |grep openshift.io/sa.scc.mcs: |awk {'print $2'}`;oc patch namespace $OPENSHIFT_APP_NAME-dr -p "{\"metadata\":{\"annotations\":{\"openshift.io/sa.scc.mcs\":\"$SCC_MCS\"}}}"
 
 sleep 3
 
-SCC_SUPP_GROUPS=`cat /tmp/project.yaml |grep openshift.io/sa.scc.supplemental-groups: |awk {'print $2'}`;oc patch namespace $OPENSHIFT_APP_NAME-prod -p "{\"metadata\":{\"annotations\":{\"openshift.io/sa.scc.supplemental-groups\":\"$SCC_SUPP_GROUPS\"}}}"
+SCC_SUPP_GROUPS=`cat /tmp/project.yaml |grep openshift.io/sa.scc.supplemental-groups: |awk {'print $2'}`;oc patch namespace $OPENSHIFT_APP_NAME-dr -p "{\"metadata\":{\"annotations\":{\"openshift.io/sa.scc.supplemental-groups\":\"$SCC_SUPP_GROUPS\"}}}"
 
 sleep 3
 
-SCC_UID_RANGES=`cat /tmp/project.yaml |grep openshift.io/sa.scc.uid-range: |awk {'print $2'}`;oc patch namespace $OPENSHIFT_APP_NAME-prod -p "{\"metadata\":{\"annotations\":{\"openshift.io/sa.scc.uid-range\":\"$SCC_UID_RANGES\"}}}"
+SCC_UID_RANGES=`cat /tmp/project.yaml |grep openshift.io/sa.scc.uid-range: |awk {'print $2'}`;oc patch namespace $OPENSHIFT_APP_NAME-dr -p "{\"metadata\":{\"annotations\":{\"openshift.io/sa.scc.uid-range\":\"$SCC_UID_RANGES\"}}}"
 
 sleep 3
 
 echo "INFO: Creating secrets and storage mappings on DR"
-oc create -f /tmp/secret.yaml -n $OPENSHIFT_APP_NAME-prod
+oc create -f /tmp/secret.yaml -n $OPENSHIFT_APP_NAME-dr
 
 oc create -f /tmp/pv
 
