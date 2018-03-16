@@ -1,4 +1,4 @@
 openshift_test_url: https://openshift.144.76.134.229.xip.io:8443
-openshift_test_token: 7Pfd17d4NIBghixsPTdQ3S-FPQaemnQ1W2OMl3szfFs
+openshift_test_token: nQEbP4MD_6kY6k2YkRenljtKDWrvCT9Cy-uhb-YiNnY
 openshift_prod_url: https://openshift.144.76.134.230.xip.io:8443
-openshift_prod_token: lKffkOuOQCXsQrPGTaX5Z_jJhIdV15ip5laM4IJ6qGM
+openshift_prod_token: PqIeLvATB4liHqLpd018yd2kppUt-4OiXX6BLMAjBSo
